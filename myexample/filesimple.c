@@ -44,6 +44,36 @@ static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
 	return -1;
 }
 
+
+void selectNameList(char *jsonstr,jsmntok_t *t, int *nameTokIndex)
+{
+	  int index;
+    while(1){
+			printf("Select Name's no(exit:0)>>");
+			scanf("%d",&index);
+			if(index==0) break;
+			printf("[NAME%d]%.*s\n",index,t[(nameTokIndex[index-1])].end-t[(nameTokIndex[index-1])].start,
+				 jsonstr + t[(nameTokIndex[index-1])].start);
+
+     int ptr=nameTokIndex[index-1]+1;
+     if(t[(nameTokIndex[index-1])+1].size>0){
+		   ptr++;
+			 while(1){
+				 printf("%.*s\n",t[ptr].end-t[ptr].start,
+	 						jsonstr + t[ptr].start);
+				 if(t[ptr+1].size>0)break;
+				 ptr++;
+			 }
+		 }
+		 else{
+			 printf("%.*s\n",t[(nameTokIndex[index-1])+1].end-t[(nameTokIndex[index-1])+1].start,
+						 jsonstr + t[(nameTokIndex[index-1])+1].start);
+		 }
+		}
+
+
+}
+
 void jsonNameList(char *jsonstr,jsmntok_t *t, int tokcount,int *nameTokIndex)
 {
 
@@ -67,6 +97,8 @@ void printNameList(char *jsonstr,jsmntok_t *t,int *nameTokIndex)
 			for(i=0;nameTokIndex[i]!=-1;i++){
 				printf("[NAME%d]%.*s\n",i+1,t[(nameTokIndex[i])].end-t[(nameTokIndex[i])].start,
 					 jsonstr + t[(nameTokIndex[i])].start);
+			  printf("",t[(nameTokIndex[i])].end-t[(nameTokIndex[i])].start,
+ 						 jsonstr + t[(nameTokIndex[i])].start);
 			//printf("%d ", *(nameTokIndex+1));
 		}
 }
@@ -102,7 +134,7 @@ int main() {
   nameTokIndex=(int*)malloc(sizeof(int));
   jsonNameList(JSON_STRING,t,r,nameTokIndex);
   printNameList(JSON_STRING,t,nameTokIndex);
-
+  selectNameList(JSON_STRING,t,nameTokIndex);
 
 	// /* Loop over all keys of the root object */
 	// for (i = 1; i < r; i++) {
