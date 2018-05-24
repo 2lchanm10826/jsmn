@@ -1,7 +1,7 @@
-# You can put your build options here
+# Yo# You can put your build options here
 -include config.mk
 
-all: libjsmn.a 
+all: libjsmn.a
 
 libjsmn.a: jsmn.o
 	$(AR) rc $@ $^
@@ -31,11 +31,13 @@ simple_example: example/simple.o libjsmn.a
 jsondump: example/jsondump.o libjsmn.a
 	$(CC) $(LDFLAGS) $^ -o $@
 
+my_example: myexample/filesimple.o libjsmn.a
+	$(CC) $(LDFLAGS) $^ -o $@ -w
+
 clean:
 	rm -f *.o example/*.o
 	rm -f *.a *.so
 	rm -f simple_example
 	rm -f jsondump
-
+	rm -f my_example
 .PHONY: all clean test
-
