@@ -45,6 +45,8 @@ static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
 }
 
 
+
+
 void selectNameList(char *jsonstr,jsmntok_t *t, int *nameTokIndex)
 {
 	  int index;
@@ -124,7 +126,7 @@ int main() {
 	}
 
 	/* Assume the top-level element is an object */
-	if (r < 1 || t[0].type != JSMN_OBJECT) {
+	if (r < 1) {
 		printf("Object expected\n");
 		return 1;
 	}
