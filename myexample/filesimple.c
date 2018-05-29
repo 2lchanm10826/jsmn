@@ -79,15 +79,21 @@ void selectNameList(char *jsonstr,jsmntok_t *t, int *nameTokIndex)
 void jsonNameList(char *jsonstr,jsmntok_t *t, int tokcount,int *nameTokIndex)
 {
 
-	int count=0,i;
+	int count=0,i,child;
+  child=0;
 
 	for (i=1;i<tokcount;i++){
-		 if(t[i].type==3&&t[i].size>0){
+		 if(t[i].type==3&&t[i].size>0&&child==0){
+			 child=t[i+1].size;
 			 count++;
 			 nameTokIndex=(int*)realloc(nameTokIndex,(count)*sizeof(int));
 			 nameTokIndex[count-1]=i;
-		 //	printf("[NAME%d]%.*s\n",count,t[i].end-t[i].start,jsonstr + t[i].start);
-		//	printf("%d ", nameTokIndex[0]);
+		 	//printf("[NAME%d]%.*s\n",count,t[i].end-t[i].start,jsonstr + t[i].start);
+			//printf("%d ", nameTokIndex[0]);
+		 }
+		 else if(child!=0){
+       child+=t[i+1].size;
+			 child--;
 		 }
 	}
 	nameTokIndex[count]=-1;
@@ -96,6 +102,7 @@ void jsonNameList(char *jsonstr,jsmntok_t *t, int tokcount,int *nameTokIndex)
 void printNameList(char *jsonstr,jsmntok_t *t,int *nameTokIndex)
 {
 			int i=0;
+			printf("-------namelist---------\n");
 			for(i=0;nameTokIndex[i]!=-1;i++){
 				printf("[NAME%d]%.*s\n",i+1,t[(nameTokIndex[i])].end-t[(nameTokIndex[i])].start,
 					 jsonstr + t[(nameTokIndex[i])].start);
@@ -105,67 +112,98 @@ void printNameList(char *jsonstr,jsmntok_t *t,int *nameTokIndex)
 		}
 }
 
-void objectList(char *jsonstr,jsmntok_t *t,int* nameTokIndex,int t_size)
+void objectList(char *jsonstr,jsmntok_t *t,int* nameTokIndex,int t_size,int* objectTokIndex)
 {
-    int i=0,count=0;
+    int i=0,count=0,child=0;
 		char name[10];
-		strncpy(name,jsonstr + t[nameTokIndex[0]].start,t[nameTokIndex[0]].end-t[nameTokIndex[0]].start);
+		strncpy(name,jsonstr + t[nameTokIndex[0]].start,t[nameTokIndex[0]].end-t[nameTokIndex[0]].start); //맨처음 token 즉 이 예제에서는 name
 		char value[300];
-
+     printf("-------objectlist---------\n");
 		  for(i=0;i<t_size;i++){
-		   	if(t[i].type==JSMN_OBJECT&&t[i+1].type==JSMN_STRING){
+		   	if(t[i].type==JSMN_OBJECT&&t[i+1].type==JSMN_STRING&&child==0){
 			 	strncpy(value,jsonstr + t[i+1].start,t[i+1].end-t[i+1].start);
-			if(strcmp(name,value)==0){
+			if(strcmp(name,value)==0){ // token value가 name과 같으면
 					count++;
+					 child=t[i].size;
+					objectTokIndex=(int*)realloc( objectTokIndex,(count+1)*sizeof(int));
+          objectTokIndex[count]=i;
 					printf("[NAME%d]%.*s\n",count,t[i+2].end-t[i+2].start,
 				 jsonstr + t[i+2].start);
 		 		}
 		 	}
+			else if(child!=0){
+				child+=t[i+1].size;
+				child--;
+			}
 		 }
+		 count++;
+ 	  objectTokIndex=(int*)realloc(objectTokIndex,(count+1)*sizeof(int));
+    objectTokIndex[count]=t_size;
 }
 
-void printObjectList(char *jsonstr,jsmntok_t *t,int* nameTokIndex,int t_size)
+void printObjectList(char *jsonstr,jsmntok_t *t,int* nameTokIndex,int t_size,int* objectTokIndex)
 {
 	int objnum=0,i=0,num=0,j=0,count=0;
 	int same=0;
 	char name[300];
 	strncpy(name,jsonstr + t[nameTokIndex[0]].start,t[nameTokIndex[0]].end-t[nameTokIndex[0]].start);
 	char value[300];
-	printf("?");
-  objectList(jsonstr,t,nameTokIndex,sizeof(t)/sizeof(t[0]));
+//	printf("?");
+  //objectList(jsonstr,t,nameTokIndex,sizeof(t)/sizeof(t[0]));
 
  while(1){
-	 printf("원하는 번호 입력(Eixt:0)");
-	 count=0;
-	 same=0;
-   scanf("%d",&num);
-	 for(i=0;i<t_size;i++){
-		if(t[i].type==JSMN_OBJECT&&t[i+1].type==JSMN_STRING){
-			strncpy(value,jsonstr + t[i+1].start,t[i+1].end-t[i+1].start);
-			if(strcmp(value,"name")==0){
-				i++;i++;
-				if(same==1) {
-          same=0;
-					break;
-				}
-				count++;
-				if(count==num){
-					printf("name : %.*s\n",t[i].end-t[i].start,jsonstr + t[i].start);
-					same=1;
-	        	continue;
-				}
+	//  printf("원하는 번호 입력(Eixt:0)");
+	//  count=0;
+	//  same=0;
+  //  scanf("%d",&num);
+	//  for(i=0;i<t_size;i++){
+	// 	if(t[i].type==JSMN_OBJECT&&t[i+1].type==JSMN_STRING){
+	// 		strncpy(value,jsonstr + t[i+1].start,t[i+1].end-t[i+1].start);
+	// 		if(strcmp(value,"name")==0){
+	// 			i++;i++;
+	// 			if(same==1) {
+  //         same=0;
+	// 				break;
+	// 			}
+	// 			count++;
+	// 			if(count==num){
+	// 				printf("name : %.*s\n",t[i].end-t[i].start,jsonstr + t[i].start);
+	// 				same=1;
+	//         	continue;
+	// 			}
+	// 		}
+	// 	}
+	//
+	// 	if(same==1&&t[i].type==JSMN_STRING&&t[i].size>0){
+	// 		printf("     [%.*s]\n",t[i].end-t[i].start,
+	// 			 jsonstr + t[i].start);
+	// 		  printf("     %.*s\n",t[i+1].end-t[i+1].start, jsonstr + t[i+1].start);
+	// 		  i++;
+	// 	}
+	// }
+
+/////////////////////////////////여기
+	printf("원하는 번호 입력(Eixt:0)");
+	count=0;
+	scanf("%d",&num);
+	 if(num==0) break;
+  printf(" %.*s",t[objectTokIndex[num]+1].end-t[objectTokIndex[num]+1].start,jsonstr + t[objectTokIndex[num]+1].start);
+  printf(" : %.*s\n",t[objectTokIndex[num]+2].end-t[objectTokIndex[num]+2].start,jsonstr + t[objectTokIndex[num]+2].start);
+  int first=0;
+ //
+ //
+	for(i=0;nameTokIndex[i]!=-1;i++){
+		if(nameTokIndex[i]>objectTokIndex[num]&&nameTokIndex[i]<objectTokIndex[num+1]){
+      if(first==0) {
+				first=1;
+				continue;
 			}
+			printf("     [%.*s] ",t[nameTokIndex[i]].end-t[nameTokIndex[i]].start,
+					 jsonstr + t[nameTokIndex[i]].start);
+		 		  printf("     %.*s\n",t[nameTokIndex[i]+1].end-t[nameTokIndex[i]+1].start, jsonstr + t[nameTokIndex[i]+1].start);
 		}
+   }
 
-		if(same==1&&t[i].type==JSMN_STRING&&t[i].size>0){
-			printf("     [%.*s]\n",t[i].end-t[i].start,
-				 jsonstr + t[i].start);
-			  printf("     %.*s\n",t[i+1].end-t[i+1].start, jsonstr + t[i+1].start);
-			  i++;
-		}
-	}
-
-   if(num==0) break;
 
  }
 
@@ -185,12 +223,13 @@ int main() {
 
 	jsmn_init(&p);
 	r = jsmn_parse(&p, JSON_STRING, strlen(JSON_STRING), t, sizeof(t)/sizeof(t[0]));
+
 	if (r < 0) {
 		printf("Failed to parse JSON: %d\n", r);
 		return 1;
 	}
 
-	/* Assume the top-level element is an object */
+	/* Assume the top-level element is an object or array */
 	if (r < 1) {
 		printf("Object expected\n");
 		return 1;
@@ -198,12 +237,15 @@ int main() {
 
 
   int* nameTokIndex;
+	int* objectTokIndex;
   nameTokIndex=(int*)malloc(sizeof(int));
+  objectTokIndex=(int*)malloc(sizeof(int));
   jsonNameList(JSON_STRING,t,r,nameTokIndex);
   printNameList(JSON_STRING,t,nameTokIndex);
-  selectNameList(JSON_STRING,t,nameTokIndex);
-  objectList(JSON_STRING,t,nameTokIndex,sizeof(t)/sizeof(t[0]));
-  printObjectList(JSON_STRING,t,nameTokIndex,sizeof(t)/sizeof(t[0]));
+  //selectNameList(JSON_STRING,t,nameTokIndex);
+  objectList(JSON_STRING,t,nameTokIndex,sizeof(t)/sizeof(t[0]),objectTokIndex);
+
+  printObjectList(JSON_STRING,t,nameTokIndex,sizeof(t)/sizeof(t[0]),objectTokIndex);
 	// /* Loop over all keys of the root object */
 	// for (i = 1; i < r; i++) {
 	// 	if (jsoneq(JSON_STRING, &t[i], "name") == 0) {
