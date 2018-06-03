@@ -133,7 +133,7 @@ void printNameList(char *jsonstr,jsmntok_t *t,NameTokenInfo *nameTokenInfo)
 
 
 
-void printlst(char *jsonstr,jsmntok_t *t,int* nameTokIndex,int t_size,int* objectTokIndex)
+void printlst(char *jsonstr,jsmntok_t *t,NameTokenInfo *nameTokenInfo)
 {
   printf("*********************************************************\n");
   printf("%10s %10s %10s %10s %10s %10s\n","번호","제품명","제조사","가격","개수","총가격");
@@ -147,38 +147,32 @@ void printlst(char *jsonstr,jsmntok_t *t,int* nameTokIndex,int t_size,int* objec
   int total;
 
 
-  for(i=1;objectTokIndex[i]!=t_size;i++){
-   num=i;
-     //printf("hi");
-    // first=0;
-    for(j=0;nameTokIndex[j]!=-1;j++){
-      if(nameTokIndex[j]>objectTokIndex[i]&&nameTokIndex[j]<objectTokIndex[i+1]){
-        // if(first==0) {
-        //   first=1;
-        //   continue;
-        // }
+  for(i=0;nameTokenInfo[i].tokindex!=-1;){
+     num=nameTokenInfo[i].objectindex;
+       //printf("%d",nameTokenInfo[i].objectindex);
+    for(;nameTokenInfo[i].objectindex==num;i++){
         char value[30]="";
-        strncpy(value,jsonstr+t[nameTokIndex[j]].start,t[nameTokIndex[j]].end-t[nameTokIndex[j]].start);
-        value[t[nameTokIndex[j]].end-t[nameTokIndex[j]].start]='\0';
+        strncpy(value,jsonstr+t[nameTokenInfo[i].tokindex].start,t[nameTokenInfo[i].tokindex].end-t[nameTokenInfo[i].tokindex].start);
+        value[t[nameTokenInfo[i].tokindex].end-t[nameTokenInfo[i].tokindex].start]='\0';
         if(strcmp(value,"name")==0){
-          strncpy(name,jsonstr+t[nameTokIndex[j]+1].start,t[nameTokIndex[j]+1].end-t[nameTokIndex[j]+1].start);
+          strncpy(name,jsonstr+t[nameTokenInfo[i].tokindex+1].start,t[nameTokenInfo[i].tokindex+1].end-t[nameTokenInfo[i].tokindex+1].start);
         }
         else if(strcmp(value,"company")==0){
-          strncpy(company,jsonstr+t[nameTokIndex[j]+1].start,t[nameTokIndex[j]+1].end-t[nameTokIndex[j]+1].start);
+          strncpy(company,jsonstr+t[nameTokenInfo[i].tokindex+1].start,t[nameTokenInfo[i].tokindex+1].end-t[nameTokenInfo[i].tokindex+1].start);
         }
         else if(strcmp(value,"price")==0){
           char temp[30]="";
-          strncpy(temp,jsonstr+t[nameTokIndex[j]+1].start,t[nameTokIndex[j]+1].end-t[nameTokIndex[j]+1].start);
-          temp[t[nameTokIndex[j]+1].end-t[nameTokIndex[j]+1].start]='\0';
+          strncpy(temp,jsonstr+t[nameTokenInfo[i].tokindex+1].start,t[nameTokenInfo[i].tokindex+1].end-t[nameTokenInfo[i].tokindex+1].start);
+          temp[t[nameTokenInfo[i].tokindex+1].end-t[nameTokenInfo[i].tokindex+1].start]='\0';
           price=atoi(temp);
         }
         else if(strcmp(value,"count")==0){
           char temp[30]="";
-          strncpy(temp,jsonstr+t[nameTokIndex[j]+1].start,t[nameTokIndex[j]+1].end-t[nameTokIndex[j]+1].start);
+          strncpy(temp,jsonstr+t[nameTokenInfo[i].tokindex+1].start,t[nameTokenInfo[i].tokindex+1].end-t[nameTokenInfo[i].tokindex+1].start);
+          temp[t[nameTokenInfo[i].tokindex+1].end-t[nameTokenInfo[i].tokindex+1].start]='\0';
           count=atoi(temp);
         }
       }
-     }
         total=price*count;
         printf("%7d %11s  %7s  %7d %6d %9d\n",num,name,company,price,count,total);
   }
@@ -221,7 +215,8 @@ int main() {
 
   nameTokenInfo=(NameTokenInfo*)malloc(sizeof(NameTokenInfo));
   nameTokenInfo=jsonNameList(JSON_STRING,t,r,nameTokenInfo);
-  printNameList(JSON_STRING,t,nameTokenInfo);
+  //printNameList(JSON_STRING,t,nameTokenInfo);
   selectNameList(JSON_STRING,t,nameTokenInfo);
+  printlst(JSON_STRING,t,nameTokenInfo);
 	return EXIT_SUCCESS;
 }
