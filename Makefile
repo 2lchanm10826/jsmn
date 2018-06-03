@@ -34,10 +34,14 @@ jsondump: example/jsondump.o libjsmn.a
 my_example: myexample/filesimple.o libjsmn.a
 	$(CC) $(LDFLAGS) $^ -o $@ -w
 
+my_example2: myexample/productlist.o libjsmn.a
+	$(CC) $(LDFLAGS) $^ -o $@ -w
+
 clean:
 	rm -f *.o example/*.o
 	rm -f *.a *.so
 	rm -f simple_example
 	rm -f jsondump
 	rm -f my_example
+	rm -f my_example2
 .PHONY: all clean test

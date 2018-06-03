@@ -224,14 +224,15 @@ void printObjectList(char *jsonstr,jsmntok_t *t,int* nameTokIndex,int t_size,int
 void printlst(char *jsonstr,jsmntok_t *t,int* nameTokIndex,int t_size,int* objectTokIndex)
 {
   printf("*********************************************************\n");
-  printf("%10s %10s %10s %10s %10s","번호","제품명","제조사","가격","개수\n");
+  printf("%10s %10s %10s %10s %10s %10s\n","번호","제품명","제조사","가격","개수","총가격");
     printf("*********************************************************\n");
   int i=0,j=0,first=0;
   int num;
-  char name[10]="";
-  char company[10]="";
-  char price[10]="";
+  char name[30]="";
+  char company[30]="";
+  int price;
   int count;
+  int total;
 
 
   for(i=1;objectTokIndex[i]!=t_size;i++){
@@ -244,7 +245,7 @@ void printlst(char *jsonstr,jsmntok_t *t,int* nameTokIndex,int t_size,int* objec
         //   first=1;
         //   continue;
         // }
-        char value[10]="";
+        char value[30]="";
         strncpy(value,jsonstr+t[nameTokIndex[j]].start,t[nameTokIndex[j]].end-t[nameTokIndex[j]].start);
         value[t[nameTokIndex[j]].end-t[nameTokIndex[j]].start]='\0';
         if(strcmp(value,"name")==0){
@@ -254,16 +255,20 @@ void printlst(char *jsonstr,jsmntok_t *t,int* nameTokIndex,int t_size,int* objec
           strncpy(company,jsonstr+t[nameTokIndex[j]+1].start,t[nameTokIndex[j]+1].end-t[nameTokIndex[j]+1].start);
         }
         else if(strcmp(value,"price")==0){
-          strncpy(price,jsonstr+t[nameTokIndex[j]+1].start,t[nameTokIndex[j]+1].end-t[nameTokIndex[j]+1].start);
+          char temp[30]="";
+          strncpy(temp,jsonstr+t[nameTokIndex[j]+1].start,t[nameTokIndex[j]+1].end-t[nameTokIndex[j]+1].start);
+          temp[t[nameTokIndex[j]+1].end-t[nameTokIndex[j]+1].start]='\0';
+          price=atoi(temp);
         }
         else if(strcmp(value,"count")==0){
-          char temp[10]="";
+          char temp[30]="";
           strncpy(temp,jsonstr+t[nameTokIndex[j]+1].start,t[nameTokIndex[j]+1].end-t[nameTokIndex[j]+1].start);
           count=atoi(temp);
         }
       }
      }
-        printf("%7d %11s  %7s  %7s %6d\n",num,name,company,price,count);
+        total=price*count;
+        printf("%7d %11s  %7s  %7d %6d %9d\n",num,name,company,price,count,total);
   }
 
 }
