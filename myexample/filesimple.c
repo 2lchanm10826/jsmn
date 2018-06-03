@@ -13,14 +13,18 @@ int* jsonNameList(char *jsonstr,jsmntok_t *t, int tokcount,int *nameTokIndex);
 void printNameList(char *jsonstr,jsmntok_t *t,int * nameTokIndex);
 char *readJSONFile() {
 
-	FILE *fp =fopen("data3.json","r");
+  char filename[30];
+ printf("원하는 파일 명 입력:");
+  scanf("%s",filename);
+  strcat(filename,".json");
+	FILE *fp =fopen(filename,"r");
 
 	char * json_string=(char*)malloc(sizeof(char));
 
   char str[255];
 
 	 if(fp==NULL){
-			 printf("파일 오픈 실패 !\n");
+			 printf("%s 파일이 존재하지 않습니다\n",filename);
 	  	}
 
 		int len = 0;
@@ -43,9 +47,6 @@ static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
 	}
 	return -1;
 }
-
-
-
 
 void selectNameList(char *jsonstr,jsmntok_t *t, int *nameTokIndex)
 {
@@ -122,9 +123,9 @@ void printNameList(char *jsonstr,jsmntok_t *t,int *nameTokIndex)
 int * objectList(char *jsonstr,jsmntok_t *t,int* nameTokIndex,int t_size,int* objectTokIndex)
 {
     int i=0,count=0,child=0;
-		char name[10];
+		char name[300];
 		strncpy(name,jsonstr + t[nameTokIndex[0]].start,t[nameTokIndex[0]].end-t[nameTokIndex[0]].start); //맨처음 token 즉 이 예제에서는 name
-		char value[300];
+    char value[300];
      printf("-------objectlist---------\n");
 		  for(i=0;i<t_size;i++){
 		   	if(t[i].type==JSMN_OBJECT&&t[i+1].type==JSMN_STRING&&child==0){
@@ -156,7 +157,7 @@ void printObjectList(char *jsonstr,jsmntok_t *t,int* nameTokIndex,int t_size,int
 	int same=0;
 	char name[300];
 	strncpy(name,jsonstr + t[nameTokIndex[0]].start,t[nameTokIndex[0]].end-t[nameTokIndex[0]].start);
-	char value[300];
+  char value[300];
 //	printf("?");
   //objectList(jsonstr,t,nameTokIndex,sizeof(t)/sizeof(t[0]));
 
