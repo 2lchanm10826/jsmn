@@ -54,33 +54,31 @@ static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
 	return -1;
 }
 
-void selectNameList(char *jsonstr,jsmntok_t *t, int *nameTokIndex)
+void selectNameList(char *jsonstr,jsmntok_t *t, NameTokenInfo *nameTokenInfo)
 {
-	  int index;
+	  int object_no;
+    char name[20];
     while(1){
-			printf("Select Name's no(exit:0)>>");
-			scanf("%d",&index);
-			if(index==0) break;
-			printf("[NAME%d]%.*s\n",index,t[(nameTokIndex[index-1])].end-t[(nameTokIndex[index-1])].start,
-				 jsonstr + t[(nameTokIndex[index-1])].start);
+			printf("Select Object's no(exit:0)>>");
+			scanf("%d",&object_no);
+      if(object_no==0) break;
 
-     int ptr=nameTokIndex[index-1]+1;
-     if(t[(nameTokIndex[index-1])+1].size>0){
-		   ptr++;
-			 while(1){
-				 printf("%.*s\n",t[ptr].end-t[ptr].start,
-	 						jsonstr + t[ptr].start);
-				 if(t[ptr+1].size>0)break;
-				 ptr++;
-			 }
-		 }
-		 else{
-			 printf("%.*s\n",t[(nameTokIndex[index-1])+1].end-t[(nameTokIndex[index-1])+1].start,
-						 jsonstr + t[(nameTokIndex[index-1])+1].start);
-		 }
-		}
+      printf("put name(exit:0)>>");
+      scanf("%s",name);
+    int i;
+    for(i=0;nameTokenInfo[i].tokindex!=-1;i++){
+      char value[20]="";
+      int index=nameTokenInfo[i].tokindex;
+      strncpy(value,jsonstr+t[index].start,t[index].end-t[index].start);
+      value[t[index].end-t[index].start]='\0';
+      if(object_no == nameTokenInfo[i].objectindex){
+        if(strcmp(value,name)==0){
+          printf("tokenindex: %d\n",nameTokenInfo[i].tokindex);
+        }
+      }
+    }
 
-
+  }
 }
 
 NameTokenInfo* jsonNameList(char *jsonstr,jsmntok_t *t, int tokcount,NameTokenInfo *nameTokenInfo)
@@ -133,76 +131,7 @@ void printNameList(char *jsonstr,jsmntok_t *t,NameTokenInfo *nameTokenInfo)
 
 }
 
-int * objectList(char *jsonstr,jsmntok_t *t,int* nameTokIndex,int t_size,int* objectTokIndex)
-{
-    int i=0,count=0,child=0;
-		char name[300];
-		strncpy(name,jsonstr + t[nameTokIndex[0]].start,t[nameTokIndex[0]].end-t[nameTokIndex[0]].start); //맨처음 token 즉 이 예제에서는 name
-    name[t[nameTokIndex[0]].end-t[nameTokIndex[0]].start]='\0';
-    char value[300];
-     printf("-------objectlist---------\n");
-		  for(i=0;i<t_size;i++){
-		   	if(t[i].type==JSMN_OBJECT&&t[i+1].type==JSMN_STRING&&child==0){
-			 	strncpy(value,jsonstr + t[i+1].start,(t[i+1].end-t[i+1].start));
-        value[t[i+1].end-t[i+1].start]='\0';
-        //printf("%s %s",name,value);
-			if(strcmp(name,value)==0){ // token value가 name과 같으면
-					count++;
-					 child=t[i].size;
-					objectTokIndex=(int*)realloc( objectTokIndex,(count+1)*sizeof(int));
-          objectTokIndex[count]=i;
-					printf("[NAME%d]%.*s\n",count,t[i+2].end-t[i+2].start,
-				 jsonstr + t[i+2].start);
-		 		}
-		 	}
-			else if(child!=0){
-				child+=t[i+1].size;
-				child--;
-			}
-		 }
-		 count++;
- 	  objectTokIndex=(int*)realloc(objectTokIndex,(count+1)*sizeof(int));
-    objectTokIndex[count]=t_size; //맨 마지막 표시
-   return objectTokIndex;
-}
 
-void printObjectList(char *jsonstr,jsmntok_t *t,int* nameTokIndex,int t_size,int* objectTokIndex)
-{
-	int objnum=0,i=0,num=0,j=0,count=0;
-	int same=0;
-	char name[300];
-	strncpy(name,jsonstr + t[nameTokIndex[0]].start,t[nameTokIndex[0]].end-t[nameTokIndex[0]].start);
-  char value[300];
-//	printf("?");
-  //objectList(jsonstr,t,nameTokIndex,sizeof(t)/sizeof(t[0]));
-
- while(1){
-
-	printf("원하는 번호 입력(Eixt:0)");
-	count=0;
-	scanf("%d",&num);
-	 if(num==0) break;
-  printf(" %.*s",t[objectTokIndex[num]+1].end-t[objectTokIndex[num]+1].start,jsonstr + t[objectTokIndex[num]+1].start);
-  printf(" : %.*s\n",t[objectTokIndex[num]+2].end-t[objectTokIndex[num]+2].start,jsonstr + t[objectTokIndex[num]+2].start);
-  int first=0;
- //
- //
-	for(i=0;nameTokIndex[i]!=-1;i++){
-		if(nameTokIndex[i]>objectTokIndex[num]&&nameTokIndex[i]<objectTokIndex[num+1]){
-      if(first==0) {
-				first=1;
-				continue;
-			}
-			printf("     [%.*s] ",t[nameTokIndex[i]].end-t[nameTokIndex[i]].start,
-					 jsonstr + t[nameTokIndex[i]].start);
-		 		  printf("     %.*s\n",t[nameTokIndex[i]+1].end-t[nameTokIndex[i]+1].start, jsonstr + t[nameTokIndex[i]+1].start);
-		}
-   }
-
-
- }
-
-}
 
 void printlst(char *jsonstr,jsmntok_t *t,int* nameTokIndex,int t_size,int* objectTokIndex)
 {
@@ -293,6 +222,6 @@ int main() {
   nameTokenInfo=(NameTokenInfo*)malloc(sizeof(NameTokenInfo));
   nameTokenInfo=jsonNameList(JSON_STRING,t,r,nameTokenInfo);
   printNameList(JSON_STRING,t,nameTokenInfo);
-
+  selectNameList(JSON_STRING,t,nameTokenInfo);
 	return EXIT_SUCCESS;
 }
