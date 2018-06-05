@@ -1,0 +1,28 @@
+[
+  "snack:"
+{
+  "company":"오리온",
+  "name": "꼬북칩",
+  "price":"2830",
+  "count":"2"
+},
+{
+  "company":"크라운",
+  "name": "찹쌀선과",
+  "price":"3380",
+  "count":"2"
+},
+{
+  "company":"해태",
+  "name": "꼬깔콘",
+  "price":"1580",
+  "count":"3"
+},
+{
+  "company":"농심",
+  "name": "새우깡",
+  "price":"940",
+  "count":"5"
+}
+
+]
